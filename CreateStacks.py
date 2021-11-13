@@ -139,10 +139,13 @@ if clicked:
                                 list_file=glob.glob(exp.get_image_name(i,pos=pos,timepoint='*'))
                                 #st.write(sorted(list_file,key=lambda x:int(x.replace('\\','/').replace(exp.get_image_name(i,pos=pos,timepoint=-1).split('.')[0],'').replace("_t","").replace('.TIF',''))))
                                 for file in sorted(list_file,key=lambda x:int(x.replace('\\','/').replace(exp.get_image_name(i,pos=pos,timepoint=-1).split('.')[0],'').replace("_t","").replace('.TIF',''))):
+                                    #save and keep metamorph metadata in each iamge of the stack
+                                    metamorph_metadata=exifread.process_file(file)
                                     stack.save(
                                         tifffile.imread(file), 
                                         photometric='minisblack', 
-                                        contiguous=True
+                                        contiguous=True,
+                                        description=str(metamorph_metadata)
                                     )
                         except:
                             st.write('error doing stack')

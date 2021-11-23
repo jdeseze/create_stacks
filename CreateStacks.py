@@ -15,6 +15,9 @@ from tkinter import filedialog
 from PIL import Image
 import exifread
 import os
+from PIL import Image
+import shutil
+
 
 class WL:
     def __init__(self,name,step=1):
@@ -118,7 +121,7 @@ clicked = st.button('Please select a folder:')
 if clicked:
     file_dir = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
     filenames=file_selector(file_dir)
-    
+    os.mkdir(file_dir+'/Stacks')
     for filename in filenames:
         st.write(file_dir+'/'+filename)
         try:
@@ -137,18 +140,27 @@ if clicked:
                             with tifffile.TiffWriter(exp.get_image_name(i,pos=pos,timepoint=-1)) as stack:
                                 #st.write(exp.get_image_name(i,pos=pos,timepoint='*').replace('\\','/').replace(exp.get_image_name(i,pos=pos,timepoint=-1).split('.')[0],'').replace("_t","").replace('.tif',''))
                                 list_file=glob.glob(exp.get_image_name(i,pos=pos,timepoint='*'))
+                                #st.write(list_file)
                                 #st.write(sorted(list_file,key=lambda x:int(x.replace('\\','/').replace(exp.get_image_name(i,pos=pos,timepoint=-1).split('.')[0],'').replace("_t","").replace('.TIF',''))))
                                 for file in sorted(list_file,key=lambda x:int(x.replace('\\','/').replace(exp.get_image_name(i,pos=pos,timepoint=-1).split('.')[0],'').replace("_t","").replace('.TIF',''))):
                                     #save and keep metamorph metadata in each iamge of the stack
-                                    metamorph_metadata=exifread.process_file(file)
-                                    stack.save(
-                                        tifffile.imread(file), 
-                                        photometric='minisblack', 
-                                        contiguous=True,
-                                        description=str(metamorph_metadata)
-                                    )
+                                    #st.write(file)
+                                    with Image.open(file) as opened:
+                                        metamorph_metadata=[key for key in opened.tag_v2]
+                                        #st.write(metamorph_metadata)
+                                        stack.save(
+                                            tifffile.imread(file), 
+                                            photometric='minisblack', 
+                                            contiguous=True,
+                                            description=str(metamorph_metadata)
+                                        )
+
                         except:
                             st.write('error doing stack')
+                        try:
+                            shutil.move(exp.get_image_name(i,pos=pos,timepoint=-1),file_dir+'/Stacks')
+                        except:
+                            'problem moving files'
             st.write('Done')
             
 

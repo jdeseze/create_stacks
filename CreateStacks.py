@@ -5,7 +5,7 @@ Created on Thu Jun 10 17:47:03 2021
 @author: Jean
 """
 
-#pip install glob tifffile streamlit tkinter PIL exifread os
+#pip install glob2 tifffile streamlit tkinter PIL exifread os
 
 import glob
 import tifffile
